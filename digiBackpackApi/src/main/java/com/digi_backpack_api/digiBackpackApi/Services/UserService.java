@@ -17,6 +17,16 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
+    public User login(String username, String password) {
+        return userRepository.findByUsername(username)
+                .filter(user -> user.getPassword().equals(password))
+                .orElse(null);
+    }
+
+    public User findById(Long id) {
+        return userRepository.findById(id).orElse(null);
+    }
+
     public List<UserDto> getAllUsers() {
         return userRepository.findAll().stream()
                 .map(this::mapToDto)
