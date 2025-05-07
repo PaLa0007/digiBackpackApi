@@ -1,4 +1,5 @@
 package com.digi_backpack_api.digiBackpackApi.Controllers;
+
 import com.digi_backpack_api.digiBackpackApi.Entities.User;
 import com.digi_backpack_api.digiBackpackApi.Dtos.UserDto;
 import com.digi_backpack_api.digiBackpackApi.Services.UserService;
@@ -21,14 +22,24 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestParam String username,
-                                        @RequestParam String password,
-                                        HttpSession session) {
+    public ResponseEntity<?> login(@RequestParam String username,
+            @RequestParam String password,
+            HttpSession session) {
         User user = userService.login(username, password);
         if (user != null) {
             session.setAttribute("userId", user.getId());
             session.setAttribute("role", user.getRole().name());
-            return ResponseEntity.ok("Login successful");
+
+            // Map User -> UserDto
+            UserDto userDto = new UserDto();
+            userDto.setId(user.getId());
+            userDto.setUsername(user.getUsername());
+            userDto.setEmail(user.getEmail());
+            userDto.setFirstName(user.getFirstName());
+            userDto.setLastName(user.getLastName());
+            userDto.setRole(user.getRole());
+
+            return ResponseEntity.ok(userDto);
         } else {
             return ResponseEntity.status(401).body("Invalid username or password");
         }
