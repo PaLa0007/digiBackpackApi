@@ -23,6 +23,17 @@ public class SchoolService {
                 .collect(Collectors.toList());
     }
 
+    public SchoolDto createSchool(SchoolDto schoolDto) {
+        School school = new School();
+        school.setName(schoolDto.getName());
+        school.setAddress(schoolDto.getAddress());
+        school.setCity(schoolDto.getCity());
+        school.setCountry(schoolDto.getCountry());
+    
+        School savedSchool = schoolRepository.save(school);
+        return mapToDto(savedSchool);
+    }
+
     private SchoolDto mapToDto(School school) {
         SchoolDto dto = new SchoolDto();
         dto.setId(school.getId());
