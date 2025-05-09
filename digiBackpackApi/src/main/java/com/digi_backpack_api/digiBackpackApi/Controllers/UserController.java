@@ -6,10 +6,12 @@ import com.digi_backpack_api.digiBackpackApi.Services.UserService;
 
 import jakarta.servlet.http.HttpSession;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users")
@@ -69,5 +71,26 @@ public class UserController {
     @GetMapping
     public ResponseEntity<List<UserDto>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
+    }
+
+    @GetMapping("/by-school/{schoolId}")
+    public ResponseEntity<List<UserDto>> getAdminsBySchool(@PathVariable Long schoolId) {
+        return ResponseEntity.ok(userService.getAdminsBySchool(schoolId));
+    }
+
+    @PostMapping("/register-admin/{schoolId}")
+    public ResponseEntity<UserDto> registerAdmin(
+            @PathVariable Long schoolId,
+            @RequestBody Map<String, Object> requestData) {
+        String username = (String) requestData.get("username");
+        String email = (String) requestData.get("email");
+        String firstName = (String) requestData.get("firstName");
+        String lastName = (String) requestData.get("lastName");
+        String password = (String) requestData.get("password");
+
+        UserDto createdAdmin = userService.registerSchoolAdmin(
+                schoolId, username, email, firstName, lastName, password);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdAdmin);
     }
 }

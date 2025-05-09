@@ -24,9 +24,25 @@ public class SchoolController {
         return ResponseEntity.ok(schoolService.getAllSchools());
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<SchoolDto> getSchoolById(@PathVariable Long id) {
+        return ResponseEntity.ok(schoolService.getSchoolById(id));
+    }
+
     @PostMapping
     public ResponseEntity<SchoolDto> createSchool(@RequestBody SchoolDto schoolDto) {
         SchoolDto createdSchool = schoolService.createSchool(schoolDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdSchool);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<SchoolDto> updateSchool(@PathVariable Long id, @RequestBody SchoolDto schoolDto) {
+        return ResponseEntity.ok(schoolService.updateSchool(id, schoolDto));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteSchool(@PathVariable Long id) {
+        schoolService.deleteSchool(id);
+        return ResponseEntity.noContent().build();
     }
 }

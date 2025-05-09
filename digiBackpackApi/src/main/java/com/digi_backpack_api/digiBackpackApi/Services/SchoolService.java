@@ -23,15 +23,41 @@ public class SchoolService {
                 .collect(Collectors.toList());
     }
 
+    public SchoolDto getSchoolById(Long id) {
+        School school = schoolRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("School not found"));
+        return mapToDto(school);
+    }
+
     public SchoolDto createSchool(SchoolDto schoolDto) {
         School school = new School();
         school.setName(schoolDto.getName());
         school.setAddress(schoolDto.getAddress());
         school.setCity(schoolDto.getCity());
         school.setCountry(schoolDto.getCountry());
-    
+
         School savedSchool = schoolRepository.save(school);
         return mapToDto(savedSchool);
+    }
+
+    public SchoolDto updateSchool(Long id, SchoolDto schoolDto) {
+        School school = schoolRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("School not found"));
+
+        school.setName(schoolDto.getName());
+        school.setAddress(schoolDto.getAddress());
+        school.setCity(schoolDto.getCity());
+        school.setCountry(schoolDto.getCountry());
+
+        School updatedSchool = schoolRepository.save(school);
+        return mapToDto(updatedSchool);
+    }
+
+    public void deleteSchool(Long id) {
+        if (!schoolRepository.existsById(id)) {
+            throw new RuntimeException("School not found");
+        }
+        schoolRepository.deleteById(id);
     }
 
     private SchoolDto mapToDto(School school) {
