@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.Map;
 
 @Service
 public class UserService {
@@ -65,6 +66,38 @@ public class UserService {
         User savedAdmin = userRepository.save(admin);
 
         return mapToDto(savedAdmin);
+    }
+
+    public UserDto updateSchoolAdmin(Long adminId, Map<String, Object> updates) {
+        User admin = userRepository.findById(adminId)
+                .orElseThrow(() -> new RuntimeException("Admin not found"));
+
+        // Update fields dynamically if they exist in the map
+        if (updates.containsKey("username")) {
+            admin.setUsername((String) updates.get("username"));
+        }
+        if (updates.containsKey("email")) {
+            admin.setEmail((String) updates.get("email"));
+        }
+        if (updates.containsKey("firstName")) {
+            admin.setFirstName((String) updates.get("firstName"));
+        }
+        if (updates.containsKey("lastName")) {
+            admin.setLastName((String) updates.get("lastName"));
+        }
+        if (updates.containsKey("password")) {
+            admin.setPassword((String) updates.get("password"));
+        }
+
+        User saved = userRepository.save(admin);
+        return mapToDto(saved);
+    }
+
+    public void deleteSchoolAdmin(Long adminId) {
+        User admin = userRepository.findById(adminId)
+                .orElseThrow(() -> new RuntimeException("Admin not found"));
+
+        userRepository.delete(admin);
     }
 
     private UserDto mapToDto(User user) {

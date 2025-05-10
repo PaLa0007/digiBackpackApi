@@ -93,4 +93,19 @@ public class UserController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(createdAdmin);
     }
+
+    @PutMapping("/{adminId}")
+    public ResponseEntity<UserDto> updateAdmin(
+            @PathVariable Long adminId,
+            @RequestBody Map<String, Object> updates) {
+
+        UserDto updatedAdmin = userService.updateSchoolAdmin(adminId, updates);
+        return ResponseEntity.ok(updatedAdmin);
+    }
+
+    @DeleteMapping("/{adminId}")
+    public ResponseEntity<String> deleteAdmin(@PathVariable Long adminId) {
+        userService.deleteSchoolAdmin(adminId);
+        return ResponseEntity.ok("Admin deleted successfully");
+    }
 }
