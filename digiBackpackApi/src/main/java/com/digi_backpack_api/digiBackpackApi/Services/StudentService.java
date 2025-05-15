@@ -63,14 +63,27 @@ public class StudentService {
     }
 
     private void mapFromDto(Student student, StudentDto dto) {
-        student.setUsername(dto.getUsername());
-        student.setEmail(dto.getEmail());
-        student.setFirstName(dto.getFirstName());
-        student.setLastName(dto.getLastName());
-        student.setGradeLevel(dto.getGradeLevel());
-        student.setParentName(dto.getParentName());
-        student.setParentPhone(dto.getParentPhone());
-
+        if (dto.getUsername() != null) {
+            student.setUsername(dto.getUsername());
+        }
+        if (dto.getEmail() != null) {
+            student.setEmail(dto.getEmail());
+        }
+        if (dto.getFirstName() != null) {
+            student.setFirstName(dto.getFirstName());
+        }
+        if (dto.getLastName() != null) {
+            student.setLastName(dto.getLastName());
+        }
+        if (dto.getGradeLevel() != null) {
+            student.setGradeLevel(dto.getGradeLevel());
+        }
+        if (dto.getParentName() != null) {
+            student.setParentName(dto.getParentName());
+        }
+        if (dto.getParentPhone() != null) {
+            student.setParentPhone(dto.getParentPhone());
+        }
         if (dto.getSchoolId() != null) {
             School school = new School();
             school.setId(dto.getSchoolId());
