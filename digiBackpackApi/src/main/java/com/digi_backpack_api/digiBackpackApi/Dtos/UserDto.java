@@ -17,4 +17,6 @@ public class UserDto {
     private String lastName;
 
     private Role role;
+    
+    private Long schoolId;
 }

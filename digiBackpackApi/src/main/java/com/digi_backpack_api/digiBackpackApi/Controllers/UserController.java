@@ -40,6 +40,7 @@ public class UserController {
             userDto.setFirstName(user.getFirstName());
             userDto.setLastName(user.getLastName());
             userDto.setRole(user.getRole());
+            userDto.setSchoolId(user.getSchool() != null ? user.getSchool().getId() : null);
 
             return ResponseEntity.ok(userDto);
         } else {
@@ -65,7 +66,16 @@ public class UserController {
             return ResponseEntity.status(404).body("User not found");
         }
 
-        return ResponseEntity.ok(user);
+        UserDto userDto = new UserDto();
+        userDto.setId(user.getId());
+        userDto.setUsername(user.getUsername());
+        userDto.setEmail(user.getEmail());
+        userDto.setFirstName(user.getFirstName());
+        userDto.setLastName(user.getLastName());
+        userDto.setRole(user.getRole());
+        userDto.setSchoolId(user.getSchool() != null ? user.getSchool().getId() : null); // ✅
+
+        return ResponseEntity.ok(userDto);
     }
 
     @GetMapping
@@ -90,6 +100,7 @@ public class UserController {
 
         UserDto createdAdmin = userService.registerSchoolAdmin(
                 schoolId, username, email, firstName, lastName, password);
+                
 
         return ResponseEntity.status(HttpStatus.CREATED).body(createdAdmin);
     }
