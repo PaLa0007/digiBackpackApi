@@ -1,6 +1,7 @@
 package com.digi_backpack_api.digiBackpackApi.Controllers;
 
 import com.digi_backpack_api.digiBackpackApi.Dtos.CreateTeacherDto;
+import com.digi_backpack_api.digiBackpackApi.Dtos.TeacherDashboardStatsDto;
 import com.digi_backpack_api.digiBackpackApi.Dtos.TeacherDto;
 import com.digi_backpack_api.digiBackpackApi.Services.TeacherService;
 
@@ -52,4 +53,10 @@ public class TeacherController {
         teacherService.deleteTeacher(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/{id}/dashboard-stats")
+    public ResponseEntity<TeacherDashboardStatsDto> getDashboardStats(@PathVariable Long id) {
+        return ResponseEntity.ok(teacherService.getDashboardStats(id));
+    }
+
 }

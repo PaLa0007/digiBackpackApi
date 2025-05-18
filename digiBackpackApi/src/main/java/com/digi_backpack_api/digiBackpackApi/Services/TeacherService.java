@@ -2,9 +2,13 @@ package com.digi_backpack_api.digiBackpackApi.Services;
 
 import com.digi_backpack_api.digiBackpackApi.Dtos.TeacherDto;
 import com.digi_backpack_api.digiBackpackApi.Dtos.CreateTeacherDto;
+import com.digi_backpack_api.digiBackpackApi.Dtos.TeacherDashboardStatsDto;
 import com.digi_backpack_api.digiBackpackApi.Entities.School;
 import com.digi_backpack_api.digiBackpackApi.Entities.Teacher;
 import com.digi_backpack_api.digiBackpackApi.Entities.Role;
+import com.digi_backpack_api.digiBackpackApi.Repos.AssignmentRepository;
+import com.digi_backpack_api.digiBackpackApi.Repos.ClassroomRepository;
+import com.digi_backpack_api.digiBackpackApi.Repos.LearningMaterialRepository;
 import com.digi_backpack_api.digiBackpackApi.Repos.TeacherRepository;
 import org.springframework.stereotype.Service;
 
@@ -15,9 +19,19 @@ import java.util.stream.Collectors;
 public class TeacherService {
 
     private final TeacherRepository teacherRepository;
+    private final ClassroomRepository classroomRepository;
+    private final AssignmentRepository assignmentRepository;
+    private final LearningMaterialRepository learningMaterialRepository;
 
-    public TeacherService(TeacherRepository teacherRepository) {
+    public TeacherService(
+            TeacherRepository teacherRepository,
+            ClassroomRepository classroomRepository,
+            AssignmentRepository assignmentRepository,
+            LearningMaterialRepository learningMaterialRepository) {
         this.teacherRepository = teacherRepository;
+        this.classroomRepository = classroomRepository;
+        this.assignmentRepository = assignmentRepository;
+        this.learningMaterialRepository = learningMaterialRepository;
     }
 
     public List<TeacherDto> searchTeachers(String query) {
@@ -96,4 +110,13 @@ public class TeacherService {
         dto.setPhoneNumber(teacher.getPhoneNumber());
         return dto;
     }
+
+    public TeacherDashboardStatsDto getDashboardStats(Long teacherId) {
+        long classrooms = classroomRepository.countByTeacherId(teacherId);
+        long assignments = assignmentRepository.countByCreatedById(teacherId);
+        long materials = learningMaterialRepository.countByUploadedById(teacherId);
+
+        return new TeacherDashboardStatsDto(classrooms, assignments, materials);
+    }
+
 }

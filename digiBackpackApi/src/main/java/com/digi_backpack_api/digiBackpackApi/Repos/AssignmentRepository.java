@@ -4,4 +4,5 @@ import com.digi_backpack_api.digiBackpackApi.Entities.Assignment;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface AssignmentRepository extends JpaRepository<Assignment, Long> {
+    long countByCreatedById(Long teacherId);
 }
