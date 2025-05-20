@@ -143,9 +143,19 @@ public class ClassroomService {
         dto.setId(classroom.getId());
         dto.setName(classroom.getName());
         dto.setGrade(classroom.getGrade());
-        dto.setSchoolId(classroom.getSchool().getId());
-        dto.setSubjectId(classroom.getSubject().getId());
-        dto.setTeacherId(classroom.getTeacher().getId());
+
+        if (classroom.getSchool() != null) {
+            dto.setSchoolId(classroom.getSchool().getId());
+        }
+
+        if (classroom.getSubject() != null) {
+            dto.setSubjectId(classroom.getSubject().getId());
+        }
+
+        if (classroom.getTeacher() != null) {
+            dto.setTeacherId(classroom.getTeacher().getId());
+        }
+
         return dto;
     }
 }

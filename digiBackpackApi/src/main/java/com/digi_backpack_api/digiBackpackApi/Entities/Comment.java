@@ -24,4 +24,7 @@ public class Comment {
 
     @ManyToOne
     private LearningMaterial learningMaterial;
+
+    @ManyToOne
+    private Classroom classroom;
 }
