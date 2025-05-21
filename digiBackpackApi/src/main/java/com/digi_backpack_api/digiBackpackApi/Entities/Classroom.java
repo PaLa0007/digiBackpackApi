@@ -15,7 +15,7 @@ public class Classroom {
 
     private String name; // e.g., "Math 4A"
 
-    private int grade;
+    private String grade;
 
     @ManyToOne
     private School school;

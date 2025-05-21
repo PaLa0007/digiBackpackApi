@@ -9,7 +9,7 @@ public class ClassroomDto {
 
     private String name;
 
-    private int grade;
+    private String grade;
 
     private Long schoolId;
 
