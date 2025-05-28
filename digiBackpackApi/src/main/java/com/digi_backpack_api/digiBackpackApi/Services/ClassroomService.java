@@ -5,7 +5,7 @@ import com.digi_backpack_api.digiBackpackApi.Entities.*;
 import com.digi_backpack_api.digiBackpackApi.Repos.*;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+//import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -103,22 +103,23 @@ public class ClassroomService {
         List<Assignment> assignments = assignmentRepository.findByClassroomId(classroomId);
         for (Assignment a : assignments) {
             feed.add(new FeedItemDto(
+                    a.getId(),
                     "assignment",
                     a.getTitle(),
                     a.getDescription(),
                     a.getCreatedBy().getFirstName() + " " + a.getCreatedBy().getLastName(),
-                    a.getDueDate().atStartOfDay() // assuming dueDate is LocalDate
-            ));
+                    a.getDueDate().atStartOfDay()));
         }
 
         List<LearningMaterial> materials = learningMaterialRepository.findByClassroomId(classroomId);
         for (LearningMaterial m : materials) {
             feed.add(new FeedItemDto(
+                    m.getId(),
                     "material",
                     m.getTitle(),
                     m.getDescription(),
                     m.getUploadedBy().getFirstName() + " " + m.getUploadedBy().getLastName(),
-                    LocalDateTime.now() // replace with real timestamp when available
+                    m.getUploadedAt() // Replace this with actual timestamp if you store it
             ));
         }
 
@@ -126,10 +127,12 @@ public class ClassroomService {
                 .findByClassroomIdAndAssignmentIsNullAndLearningMaterialIsNull(classroomId);
         for (Comment c : messages) {
             feed.add(new FeedItemDto(
+                    c.getId(),
                     "message",
+                    null,
                     c.getContent(),
                     c.getCreatedBy().getFirstName() + " " + c.getCreatedBy().getLastName(),
-                    LocalDateTime.now() // replace with real timestamp when available
+                    c.getCreatedAt() // Replace with actual timestamp if available
             ));
         }
 

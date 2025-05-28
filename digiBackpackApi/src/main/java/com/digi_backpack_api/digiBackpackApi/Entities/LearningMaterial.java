@@ -1,5 +1,7 @@
 package com.digi_backpack_api.digiBackpackApi.Entities;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,4 +26,13 @@ public class LearningMaterial {
 
     @ManyToOne
     private Classroom classroom;
+
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime uploadedAt;
+
+    @PrePersist
+    protected void onCreate() {
+        this.uploadedAt = LocalDateTime.now();
+    }
+
 }

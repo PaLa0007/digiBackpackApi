@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 public class FeedItemDto {
+    private Long id;
     private String type;            // "assignment", "material", or "message"
     private String title;           // Optional (used for assignments/materials)
     private String description;     // Required (main text/content)
@@ -14,7 +15,8 @@ public class FeedItemDto {
     private LocalDateTime createdAt; // When it was posted
 
     // Convenience constructor for comments/messages without title
-    public FeedItemDto(String type, String description, String createdBy, LocalDateTime createdAt) {
+    public FeedItemDto(long id, String type, String description, String createdBy, LocalDateTime createdAt) {
+        this.id = id;
         this.type = type;
         this.title = null;
         this.description = description;
