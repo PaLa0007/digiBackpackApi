@@ -1,9 +1,9 @@
 package com.digi_backpack_api.digiBackpackApi.Services;
 
+import com.digi_backpack_api.digiBackpackApi.Dtos.StudentClassroomDto;
 import com.digi_backpack_api.digiBackpackApi.Dtos.StudentDto;
-import com.digi_backpack_api.digiBackpackApi.Entities.School;
-import com.digi_backpack_api.digiBackpackApi.Entities.Student;
-import com.digi_backpack_api.digiBackpackApi.Entities.Role;
+import com.digi_backpack_api.digiBackpackApi.Entities.*;
+import com.digi_backpack_api.digiBackpackApi.Repos.StudentClassroomRepository;
 import com.digi_backpack_api.digiBackpackApi.Repos.StudentRepository;
 import org.springframework.stereotype.Service;
 
@@ -14,9 +14,11 @@ import java.util.stream.Collectors;
 public class StudentService {
 
     private final StudentRepository studentRepository;
+    private final StudentClassroomRepository studentClassroomRepository; // ← add this
 
-    public StudentService(StudentRepository studentRepository) {
+    public StudentService(StudentRepository studentRepository, StudentClassroomRepository studentClassroomRepository) {
         this.studentRepository = studentRepository;
+        this.studentClassroomRepository = studentClassroomRepository;
     }
 
     public List<StudentDto> getAllStudents() {
@@ -29,6 +31,17 @@ public class StudentService {
         Student student = studentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Student not found with ID: " + id));
         return mapToDto(student);
+    }
+
+    public List<StudentDto> getStudentsByGrade(String gradeLevel) {
+        return studentRepository.findByGradeLevel(gradeLevel).stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
+    }
+
+    public List<StudentClassroomDto> getByClassroom(Long classroomId) {
+        return studentClassroomRepository.findByClassroomId(classroomId)
+                .stream().map(this::mapToDto).collect(Collectors.toList());
     }
 
     public List<StudentDto> searchStudents(String query) {
@@ -104,4 +117,13 @@ public class StudentService {
         dto.setParentPhone(student.getParentPhone());
         return dto;
     }
+
+    private StudentClassroomDto mapToDto(StudentClassroom sc) {
+        StudentClassroomDto dto = new StudentClassroomDto();
+        dto.setId(sc.getId());
+        dto.setStudentId(sc.getStudent().getId());
+        dto.setClassroomId(sc.getClassroom().getId());
+        return dto;
+    }
+
 }

@@ -21,4 +21,16 @@ public class StudentClassroomController {
     public ResponseEntity<List<StudentClassroomDto>> getAllStudentClassrooms() {
         return ResponseEntity.ok(studentClassroomService.getAllStudentClassrooms());
     }
+
+    @PostMapping
+    public ResponseEntity<StudentClassroomDto> assignStudentToClassroom(@RequestBody StudentClassroomDto dto) {
+        return ResponseEntity.ok(studentClassroomService.assignStudent(dto));
+    }
+
+    @PostMapping("/bulk")
+    public ResponseEntity<List<StudentClassroomDto>> assignMultipleStudentsToClassroom(
+            @RequestBody List<StudentClassroomDto> dtos) {
+        return ResponseEntity.ok(studentClassroomService.assignStudentsBulk(dtos));
+    }
+
 }

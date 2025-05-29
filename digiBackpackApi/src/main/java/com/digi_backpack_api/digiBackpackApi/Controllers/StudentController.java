@@ -27,6 +27,11 @@ public class StudentController {
         return ResponseEntity.ok(studentService.getStudentById(id));
     }
 
+    @GetMapping("/by-grade/{gradeLevel}")
+    public ResponseEntity<List<StudentDto>> getStudentsByGrade(@PathVariable String gradeLevel) {
+        return ResponseEntity.ok(studentService.getStudentsByGrade(gradeLevel));
+    }
+
     @GetMapping("/search")
     public ResponseEntity<List<StudentDto>> searchStudents(@RequestParam String query) {
         return ResponseEntity.ok(studentService.searchStudents(query));
