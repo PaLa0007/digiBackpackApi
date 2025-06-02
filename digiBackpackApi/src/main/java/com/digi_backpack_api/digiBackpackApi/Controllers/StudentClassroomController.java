@@ -27,6 +27,14 @@ public class StudentClassroomController {
         return ResponseEntity.ok(studentClassroomService.assignStudent(dto));
     }
 
+    @DeleteMapping("/removeStudent/{id}")
+    public ResponseEntity<Void> removeStudent(@PathVariable Long id) {
+        if (!studentClassroomService.removeStudent(id)) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.noContent().build();
+    }
+
     @PostMapping("/bulk")
     public ResponseEntity<List<StudentClassroomDto>> assignMultipleStudentsToClassroom(
             @RequestBody List<StudentClassroomDto> dtos) {

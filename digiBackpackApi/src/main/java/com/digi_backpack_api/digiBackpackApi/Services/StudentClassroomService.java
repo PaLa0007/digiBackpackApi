@@ -63,6 +63,14 @@ public class StudentClassroomService {
                 .collect(Collectors.toList());
     }
 
+    public boolean removeStudent(Long id) {
+        if (!studentClassroomRepository.existsById(id)) {
+            return false;
+        }
+        studentClassroomRepository.deleteById(id);
+        return true;
+    }
+
     private StudentClassroomDto mapToDto(StudentClassroom studentClassroom) {
         StudentClassroomDto dto = new StudentClassroomDto();
         dto.setId(studentClassroom.getId());
