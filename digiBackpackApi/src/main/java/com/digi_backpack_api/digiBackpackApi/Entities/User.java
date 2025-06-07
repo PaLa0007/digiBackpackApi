@@ -34,4 +34,10 @@ public class User {
     @ManyToOne
     @JoinColumn(name = "school_id")
     private School school;
+
+    public String getFullName() {
+        return (firstName != null ? firstName : "") +
+                (lastName != null ? " " + lastName : "");
+    }
+
 }
