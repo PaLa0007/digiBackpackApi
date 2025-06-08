@@ -10,4 +10,7 @@ public interface ClassroomRepository extends JpaRepository<Classroom, Long> {
     long countByTeacherId(Long teacherId);
 
     List<Classroom> findByTeacherId(Long teacherId);
+
+    List<Classroom> findByGrade(String grade);
+
 }

@@ -366,3 +366,6 @@ Caused by: org.h2.mvstore.MVStoreException: The file is locked: D:/Programming/f
 	at org.h2.mvstore.SingleFileStore.open(SingleFileStore.java:81)
 	at org.h2.mvstore.MVStore.<init>(MVStore.java:286)
 	... 54 more
+2025-06-08 10:52:04.651531+03:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "SCHEDULE" not found; SQL statement:
+DELETE FROM schedule [42102-232]

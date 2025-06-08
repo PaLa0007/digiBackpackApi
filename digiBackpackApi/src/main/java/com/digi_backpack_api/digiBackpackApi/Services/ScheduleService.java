@@ -52,6 +52,15 @@ public class ScheduleService {
         return mapToDto(schedule);
     }
 
+    public List<ScheduleDto> getSchedulesByGrade(String grade) {
+        List<Classroom> classrooms = classroomRepository.findByGrade(grade);
+        List<Schedule> schedules = scheduleRepository.findByClassroomIn(classrooms);
+
+        return schedules.stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
+    }
+
     public ScheduleDto updateSchedule(Long id, ScheduleDto dto) {
         Schedule schedule = scheduleRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Schedule not found"));

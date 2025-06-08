@@ -8,7 +8,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/schedules")
-@CrossOrigin(origins = "*")
 public class ScheduleController {
 
     private final ScheduleService scheduleService;
@@ -30,6 +29,11 @@ public class ScheduleController {
     @GetMapping("/{id}")
     public ScheduleDto getById(@PathVariable Long id) {
         return scheduleService.getScheduleById(id);
+    }
+
+    @GetMapping("/grade/{grade}")
+    public List<ScheduleDto> getSchedulesByGrade(@PathVariable String grade) {
+        return scheduleService.getSchedulesByGrade(grade);
     }
 
     @PutMapping("/{id}")
