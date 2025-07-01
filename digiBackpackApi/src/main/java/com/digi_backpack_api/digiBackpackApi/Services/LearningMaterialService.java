@@ -1,12 +1,18 @@
 package com.digi_backpack_api.digiBackpackApi.Services;
 
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.digi_backpack_api.digiBackpackApi.Dtos.LearningMaterialDto;
 import com.digi_backpack_api.digiBackpackApi.Entities.Classroom;
 import com.digi_backpack_api.digiBackpackApi.Entities.LearningMaterial;
 import com.digi_backpack_api.digiBackpackApi.Entities.Teacher;
 import com.digi_backpack_api.digiBackpackApi.Repos.LearningMaterialRepository;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -36,7 +42,7 @@ public class LearningMaterialService {
     }
 
     public LearningMaterialDto uploadLearningMaterial(MultipartFile file, String title, String description,
-                                                      Long classroomId, Long uploadedById) throws IOException {
+            Long classroomId, Long uploadedById) throws IOException {
         String uploadDir = "uploads/";
         String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
         Path uploadPath = Paths.get(uploadDir);
@@ -52,8 +58,16 @@ public class LearningMaterialService {
         material.setTitle(title);
         material.setDescription(description);
         material.setFileUrl("/" + uploadDir + fileName);
-        material.setClassroom(new Classroom() {{ setId(classroomId); }});
-        material.setUploadedBy(new Teacher() {{ setId(uploadedById); }});
+        material.setClassroom(new Classroom() {
+            {
+                setId(classroomId);
+            }
+        });
+        material.setUploadedBy(new Teacher() {
+            {
+                setId(uploadedById);
+            }
+        });
 
         learningMaterialRepository.save(material);
         return mapToDto(material);
@@ -75,6 +89,20 @@ public class LearningMaterialService {
         }
 
         learningMaterialRepository.delete(material);
+    }
+
+    public ResponseEntity<Resource> downloadLearningMaterial(String filename) throws IOException {
+        Path filePath = Paths.get("uploads").resolve(filename).normalize();
+        Resource resource = new UrlResource(filePath.toUri());
+
+        if (!resource.exists() || !resource.isReadable()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+                .body(resource);
     }
 
     private LearningMaterialDto mapToDto(LearningMaterial material) {
