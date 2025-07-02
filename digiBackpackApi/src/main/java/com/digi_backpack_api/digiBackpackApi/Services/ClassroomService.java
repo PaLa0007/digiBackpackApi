@@ -108,7 +108,7 @@ public class ClassroomService {
                     a.getTitle(),
                     a.getDescription(),
                     a.getCreatedBy().getFirstName() + " " + a.getCreatedBy().getLastName(),
-                    a.getDueDate().atStartOfDay()));
+                    a.getDueDate().atStartOfDay(),null));
         }
 
         List<LearningMaterial> materials = learningMaterialRepository.findByClassroomId(classroomId);
@@ -119,7 +119,8 @@ public class ClassroomService {
                     m.getTitle(),
                     m.getDescription(),
                     m.getUploadedBy().getFirstName() + " " + m.getUploadedBy().getLastName(),
-                    m.getUploadedAt() // Replace this with actual timestamp if you store it
+                    m.getUploadedAt(), // Replace this with actual timestamp if you store it
+                    m.getFileUrl()
             ));
         }
 
@@ -132,7 +133,8 @@ public class ClassroomService {
                     null,
                     c.getContent(),
                     c.getCreatedBy().getFirstName() + " " + c.getCreatedBy().getLastName(),
-                    c.getCreatedAt() // Replace with actual timestamp if available
+                    c.getCreatedAt(), // Replace with actual timestamp if available
+                    null
             ));
         }
 

@@ -13,14 +13,17 @@ public class FeedItemDto {
     private String description;     // Required (main text/content)
     private String createdBy;       // Full name of the teacher/user
     private LocalDateTime createdAt; // When it was posted
+    private String fileUrl;
+
 
     // Convenience constructor for comments/messages without title
-    public FeedItemDto(long id, String type, String description, String createdBy, LocalDateTime createdAt) {
+    public FeedItemDto(long id, String type, String description, String createdBy, LocalDateTime createdAt, String fileUrl) {
         this.id = id;
         this.type = type;
         this.title = null;
         this.description = description;
         this.createdBy = createdBy;
         this.createdAt = createdAt;
+        this.fileUrl = fileUrl;
     }
 } 
