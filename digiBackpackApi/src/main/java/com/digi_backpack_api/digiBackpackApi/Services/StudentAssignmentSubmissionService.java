@@ -4,19 +4,21 @@ import com.digi_backpack_api.digiBackpackApi.Dtos.StudentSubmissionDto;
 import com.digi_backpack_api.digiBackpackApi.Entities.Assignment;
 import com.digi_backpack_api.digiBackpackApi.Entities.Student;
 import com.digi_backpack_api.digiBackpackApi.Entities.StudentAssignmentSubmission;
+import com.digi_backpack_api.digiBackpackApi.Entities.SubmissionFile;
 import com.digi_backpack_api.digiBackpackApi.Repos.AssignmentRepository;
 import com.digi_backpack_api.digiBackpackApi.Repos.StudentAssignmentSubmissionRepository;
 import com.digi_backpack_api.digiBackpackApi.Repos.StudentRepository;
+import com.digi_backpack_api.digiBackpackApi.Dtos.StudentSubmissionFileDto;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 
-//import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.time.LocalDate;
@@ -42,29 +44,40 @@ public class StudentAssignmentSubmissionService {
         this.assignmentRepo = assignmentRepo;
     }
 
-    public void uploadSubmission(Long assignmentId, Long studentId, MultipartFile file) {
-        try {
-            Assignment assignment = assignmentRepo.findById(assignmentId)
-                    .orElseThrow(() -> new RuntimeException("Assignment not found"));
-            Student student = studentRepo.findById(studentId)
-                    .orElseThrow(() -> new RuntimeException("Student not found"));
+    public void uploadSubmission(Long assignmentId, Long studentId, MultipartFile[] files, String description) {
+        Assignment assignment = assignmentRepo.findById(assignmentId)
+                .orElseThrow(() -> new RuntimeException("Assignment not found"));
+        Student student = studentRepo.findById(studentId)
+                .orElseThrow(() -> new RuntimeException("Student not found"));
 
-            String filename = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-            Path path = Paths.get(uploadDir).resolve(filename);
-            Files.createDirectories(path.getParent());
-            Files.write(path, file.getBytes());
+        StudentAssignmentSubmission submission = new StudentAssignmentSubmission();
+        submission.setAssignment(assignment);
+        submission.setStudent(student);
+        submission.setDescription(description);
+        submission.setSubmittedAt(LocalDate.now());
 
-            StudentAssignmentSubmission submission = new StudentAssignmentSubmission();
-            submission.setFileName(filename);
-            submission.setFilePath(path.toString());
-            submission.setSubmittedAt(LocalDate.now());
-            submission.setStudent(student);
-            submission.setAssignment(assignment);
+        if (files != null) {
+            for (MultipartFile file : files) {
+                try {
+                    String filename = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+                    Path path = Paths.get(uploadDir).resolve(filename);
+                    Files.createDirectories(path.getParent());
+                    Files.write(path, file.getBytes());
 
-            submissionRepo.save(submission);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to store file", e);
+                    SubmissionFile submissionFile = new SubmissionFile();
+                    submissionFile.setFileName(filename);
+                    submissionFile.setFilePath(path.toString());
+                    submissionFile.setSubmission(submission);
+
+                    submission.getFiles().add(submissionFile);
+
+                } catch (IOException e) {
+                    throw new RuntimeException("Failed to store file: " + file.getOriginalFilename(), e);
+                }
+            }
         }
+
+        submissionRepo.save(submission);
     }
 
     public List<StudentSubmissionDto> getSubmissionsForAssignment(Long assignmentId) {
@@ -77,33 +90,59 @@ public class StudentAssignmentSubmissionService {
         StudentAssignmentSubmission submission = submissionRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Submission not found"));
 
-        try {
-            Files.deleteIfExists(Paths.get(submission.getFilePath()));
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to delete file", e);
+        for (SubmissionFile file : submission.getFiles()) {
+            try {
+                Files.deleteIfExists(Paths.get(file.getFilePath()));
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to delete file: " + file.getFileName(), e);
+            }
         }
 
         submissionRepo.deleteById(id);
     }
 
-    public ResponseEntity<Resource> downloadSubmission(Long id) {
-        StudentAssignmentSubmission submission = submissionRepo.findById(id)
+    public ResponseEntity<Resource> downloadSubmissionFile(Long submissionId, Long fileId) {
+        StudentAssignmentSubmission submission = submissionRepo.findById(submissionId)
                 .orElseThrow(() -> new RuntimeException("Submission not found"));
 
-        Resource file = new FileSystemResource(submission.getFilePath());
+        SubmissionFile file = submission.getFiles().stream()
+                .filter(f -> f.getId().equals(fileId))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("File not found in this submission"));
+
+        Resource resource = new FileSystemResource(file.getFilePath());
+        if (!resource.exists()) {
+            throw new RuntimeException("File not found on server: " + file.getFileName());
+        }
+
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + submission.getFileName() + "\"")
-                .body(file);
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFileName() + "\"")
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(resource);
     }
 
     private StudentSubmissionDto mapToDto(StudentAssignmentSubmission sub) {
         StudentSubmissionDto dto = new StudentSubmissionDto();
         dto.setId(sub.getId());
-        dto.setFileName(sub.getFileName());
-        dto.setFilePath(sub.getFilePath());
         dto.setSubmittedAt(sub.getSubmittedAt());
         dto.setAssignmentId(sub.getAssignment().getId());
         dto.setStudentId(sub.getStudent().getId());
+        dto.setDescription(sub.getDescription());
+
+        List<StudentSubmissionFileDto> fileDtos = sub.getFiles().stream()
+                .map(f -> {
+                    StudentSubmissionFileDto fileDto = new StudentSubmissionFileDto();
+                    fileDto.setId(f.getId());
+                    fileDto.setFileName(f.getFileName());
+                    return fileDto;
+                })
+                .collect(Collectors.toList());
+        dto.setFiles(fileDtos);
+
+        dto.setStudentFirstName(sub.getStudent().getFirstName());
+        dto.setStudentLastName(sub.getStudent().getLastName());
+
         return dto;
     }
+
 }

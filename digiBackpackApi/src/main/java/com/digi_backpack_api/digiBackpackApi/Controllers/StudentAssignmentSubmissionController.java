@@ -20,10 +20,13 @@ public class StudentAssignmentSubmissionController {
     }
 
     @PostMapping("/{assignmentId}/upload")
-    public ResponseEntity<?> uploadSubmission(@PathVariable Long assignmentId,
+    public ResponseEntity<?> uploadSubmission(
+            @PathVariable Long assignmentId,
             @RequestParam("studentId") Long studentId,
-            @RequestParam("file") MultipartFile file) {
-        submissionService.uploadSubmission(assignmentId, studentId, file);
+            @RequestParam(value = "files", required = false) MultipartFile[] files,
+            @RequestParam(value = "description", required = false) String description) {
+
+        submissionService.uploadSubmission(assignmentId, studentId, files, description);
         return ResponseEntity.ok().build();
     }
 
@@ -38,8 +41,11 @@ public class StudentAssignmentSubmissionController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/{id}/download")
-    public ResponseEntity<Resource> downloadSubmission(@PathVariable Long id) {
-        return submissionService.downloadSubmission(id);
+    @GetMapping("/{submissionId}/download/{fileId}")
+    public ResponseEntity<Resource> downloadSubmissionFile(
+            @PathVariable Long submissionId,
+            @PathVariable Long fileId) {
+        return submissionService.downloadSubmissionFile(submissionId, fileId);
     }
+
 }
