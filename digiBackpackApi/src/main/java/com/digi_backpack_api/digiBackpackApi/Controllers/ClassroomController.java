@@ -55,4 +55,10 @@ public class ClassroomController {
     public ResponseEntity<List<FeedItemDto>> getClassroomFeed(@PathVariable Long id) {
         return ResponseEntity.ok(classroomService.getClassroomFeed(id));
     }
+
+    @GetMapping(params = "studentId")
+    public ResponseEntity<List<ClassroomDto>> getClassroomsByStudent(@RequestParam Long studentId) {
+        return ResponseEntity.ok(classroomService.getClassroomsByStudentId(studentId));
+    }
+
 }

@@ -3,6 +3,8 @@ package com.digi_backpack_api.digiBackpackApi.Services;
 import com.digi_backpack_api.digiBackpackApi.Dtos.*;
 import com.digi_backpack_api.digiBackpackApi.Entities.*;
 import com.digi_backpack_api.digiBackpackApi.Repos.*;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 //import java.time.LocalDateTime;
@@ -46,6 +48,16 @@ public class ClassroomService {
 
     public List<ClassroomDto> getClassroomsByTeacherId(Long teacherId) {
         return classroomRepository.findByTeacherId(teacherId).stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
+    }
+
+    @Autowired
+    private StudentClassroomRepository studentClassroomRepository; // Add this field if not present
+
+    public List<ClassroomDto> getClassroomsByStudentId(Long studentId) {
+        return studentClassroomRepository.findClassroomsByStudentId(studentId)
+                .stream()
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
     }
@@ -108,7 +120,7 @@ public class ClassroomService {
                     a.getTitle(),
                     a.getDescription(),
                     a.getCreatedBy().getFirstName() + " " + a.getCreatedBy().getLastName(),
-                    a.getDueDate().atStartOfDay(),null));
+                    a.getDueDate().atStartOfDay(), null));
         }
 
         List<LearningMaterial> materials = learningMaterialRepository.findByClassroomId(classroomId);
@@ -120,8 +132,7 @@ public class ClassroomService {
                     m.getDescription(),
                     m.getUploadedBy().getFirstName() + " " + m.getUploadedBy().getLastName(),
                     m.getUploadedAt(), // Replace this with actual timestamp if you store it
-                    m.getFileUrl()
-            ));
+                    m.getFileUrl()));
         }
 
         List<Comment> messages = commentRepository
@@ -134,8 +145,7 @@ public class ClassroomService {
                     c.getContent(),
                     c.getCreatedBy().getFirstName() + " " + c.getCreatedBy().getLastName(),
                     c.getCreatedAt(), // Replace with actual timestamp if available
-                    null
-            ));
+                    null));
         }
 
         return feed.stream()
