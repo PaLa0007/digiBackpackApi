@@ -55,6 +55,13 @@ public class TeacherService {
         return mapToDto(teacher);
     }
 
+    public List<TeacherDto> getTeachersBySchool(Long schoolId) {
+        List<Teacher> teachers = teacherRepository.findBySchoolId(schoolId);
+        return teachers.stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
+    }
+
     public TeacherDto createTeacher(CreateTeacherDto dto) {
         Teacher teacher = new Teacher();
         teacher.setUsername(dto.getUsername());

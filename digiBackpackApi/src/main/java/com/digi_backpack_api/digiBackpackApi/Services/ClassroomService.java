@@ -153,6 +153,13 @@ public class ClassroomService {
                 .collect(Collectors.toList());
     }
 
+    public List<ClassroomDto> getClassroomsBySchoolId(Long schoolId) {
+        List<Classroom> classrooms = classroomRepository.findBySchoolId(schoolId);
+        return classrooms.stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
+    }
+
     private ClassroomDto mapToDto(Classroom classroom) {
         ClassroomDto dto = new ClassroomDto();
         dto.setId(classroom.getId());

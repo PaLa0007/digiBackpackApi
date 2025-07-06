@@ -61,4 +61,9 @@ public class ClassroomController {
         return ResponseEntity.ok(classroomService.getClassroomsByStudentId(studentId));
     }
 
+    @GetMapping(params = "schoolId")
+    public ResponseEntity<List<ClassroomDto>> getClassroomsBySchoolId(@RequestParam Long schoolId) {
+        return ResponseEntity.ok(classroomService.getClassroomsBySchoolId(schoolId));
+    }
+
 }
