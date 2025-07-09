@@ -29,9 +29,12 @@ public class Comment {
 
     @ManyToOne
     private Classroom classroom;
-    
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @ManyToOne
+    private Student recipientStudent;
 
     @PrePersist
     protected void onCreate() {

@@ -15,13 +15,20 @@ public class CommentService {
     private final ClassroomRepository classroomRepository;
     private final AssignmentRepository assignmentRepository;
     private final UserRepository userRepository;
+    private final StudentRepository studentRepository;
 
-    public CommentService(CommentRepository commentRepository, ClassroomRepository classroomRepository,
-            AssignmentRepository assignmentRepository, UserRepository userRepository) {
+    public CommentService(
+            CommentRepository commentRepository,
+            ClassroomRepository classroomRepository,
+            AssignmentRepository assignmentRepository,
+            UserRepository userRepository,
+            StudentRepository studentRepository) {
+
         this.commentRepository = commentRepository;
         this.classroomRepository = classroomRepository;
         this.assignmentRepository = assignmentRepository;
         this.userRepository = userRepository;
+        this.studentRepository = studentRepository;
     }
 
     public List<CommentDto> getCommentsForClassroom(Long classroomId) {
@@ -35,10 +42,12 @@ public class CommentService {
         User requester = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        List<Comment> comments = commentRepository.findAll().stream()
-                .filter(c -> c.getAssignment() != null && c.getAssignment().getId().equals(assignmentId))
+        List<Comment> comments = commentRepository.findByAssignmentId(assignmentId).stream()
                 .filter(c -> requester.getRole().equals(Role.TEACHER) ||
-                        (c.getCreatedBy().getId().equals(userId) || c.getCreatedBy().getRole().equals(Role.TEACHER)))
+                        c.getCreatedBy().getId().equals(userId) ||
+                        (c.getCreatedBy().getRole().equals(Role.TEACHER) &&
+                                c.getRecipientStudent() != null &&
+                                c.getRecipientStudent().getId().equals(userId)))
                 .collect(Collectors.toList());
 
         return comments.stream()
@@ -72,6 +81,13 @@ public class CommentService {
         comment.setCreatedBy(user);
         comment.setAssignment(assignment);
         comment.setClassroom(assignment.getClassroom()); // maintain link for future use
+
+        // New: Set recipientStudent if provided and the commenter is a TEACHER
+        if (dto.getRecipientStudentId() != null && user.getRole().equals(Role.TEACHER)) {
+            Student recipientStudent = studentRepository.findById(dto.getRecipientStudentId())
+                    .orElseThrow(() -> new RuntimeException("Recipient student not found"));
+            comment.setRecipientStudent(recipientStudent);
+        }
 
         commentRepository.save(comment);
         return mapToDto(comment);
@@ -108,10 +124,12 @@ public class CommentService {
         dto.setCreatedById(comment.getCreatedBy().getId());
         dto.setCreatedByFirstName(comment.getCreatedBy().getFirstName());
         dto.setCreatedByLastName(comment.getCreatedBy().getLastName());
+        dto.setCreatedByRole(comment.getCreatedBy().getRole().name());
         dto.setAssignmentId(comment.getAssignment() != null ? comment.getAssignment().getId() : null);
         dto.setLearningMaterialId(comment.getLearningMaterial() != null ? comment.getLearningMaterial().getId() : null);
         dto.setClassroomId(comment.getClassroom() != null ? comment.getClassroom().getId() : null);
         dto.setCreatedAt(comment.getCreatedAt());
+        dto.setRecipientStudentId(comment.getRecipientStudent() != null ? comment.getRecipientStudent().getId() : null);
         return dto;
     }
 }

@@ -12,10 +12,12 @@ public class CommentDto {
     private Long createdById;
     private String createdByFirstName;
     private String createdByLastName;
-
+    private String createdByRole;
     private Long assignmentId;
     private Long learningMaterialId;
     private Long classroomId;
+
+    private Long recipientStudentId;
 
     private LocalDateTime createdAt;
 }
