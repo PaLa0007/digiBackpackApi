@@ -78,7 +78,10 @@ public class ScheduleService {
         return schedules.stream().map(this::mapToDto).collect(Collectors.toList());
     }
 
-    // ⬇️ Mapping logic moved here
+    public List<ScheduleDto> getScheduleForTeacher(Long teacherId) {
+        List<Schedule> schedules = scheduleRepository.findByTeacherId(teacherId);
+        return schedules.stream().map(this::mapToDto).collect(Collectors.toList());
+    }
 
     private ScheduleDto mapToDto(Schedule schedule) {
         return ScheduleDto.builder()

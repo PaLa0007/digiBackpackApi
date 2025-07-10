@@ -50,4 +50,10 @@ public class ScheduleController {
     public List<ScheduleDto> getStudentSchedule(@PathVariable Long studentId) {
         return scheduleService.getScheduleForStudent(studentId);
     }
+
+    @GetMapping("/teacher/{teacherId}")
+    public List<ScheduleDto> getTeacherSchedule(@PathVariable Long teacherId) {
+        return scheduleService.getScheduleForTeacher(teacherId);
+    }
+
 }
