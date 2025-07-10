@@ -7,18 +7,32 @@ import com.digi_backpack_api.digiBackpackApi.Repos.StudentClassroomRepository;
 import com.digi_backpack_api.digiBackpackApi.Repos.StudentRepository;
 import org.springframework.stereotype.Service;
 
+import com.digi_backpack_api.digiBackpackApi.Dtos.StudentDashboardDto;
+
 import java.util.List;
 import java.util.stream.Collectors;
+import java.time.LocalDate;
 
 @Service
 public class StudentService {
 
     private final StudentRepository studentRepository;
-    private final StudentClassroomRepository studentClassroomRepository; // ← add this
+    private final StudentClassroomRepository studentClassroomRepository;
 
-    public StudentService(StudentRepository studentRepository, StudentClassroomRepository studentClassroomRepository) {
+    private final ClassroomService classroomService;
+    private final AssignmentService assignmentService;
+    private final LearningMaterialService learningMaterialService;
+
+    public StudentService(StudentRepository studentRepository,
+            StudentClassroomRepository studentClassroomRepository,
+            ClassroomService classroomService,
+            AssignmentService assignmentService,
+            LearningMaterialService learningMaterialService) {
         this.studentRepository = studentRepository;
         this.studentClassroomRepository = studentClassroomRepository;
+        this.classroomService = classroomService;
+        this.assignmentService = assignmentService;
+        this.learningMaterialService = learningMaterialService;
     }
 
     public List<StudentDto> getAllStudents() {
@@ -73,6 +87,27 @@ public class StudentService {
             throw new RuntimeException("Student not found with ID: " + id);
         }
         studentRepository.deleteById(id);
+    }
+
+    public StudentDashboardDto getDashboardForStudent(Long studentId) {
+        StudentDashboardDto dto = new StudentDashboardDto();
+
+        dto.setClassroomCount(classroomService.getClassroomsByStudentId(studentId).size());
+
+        dto.setUpcomingAssignments(
+                (int) assignmentService.getAllAssignments().stream()
+                        .filter(a -> a.getDueDate() != null && a.getDueDate().isAfter(LocalDate.now()))
+                        .filter(a -> classroomService.getClassroomsByStudentId(studentId).stream()
+                                .anyMatch(c -> c.getId().equals(a.getClassroomId())))
+                        .count());
+
+        dto.setMaterialsAvailable(
+                (int) learningMaterialService.getAllLearningMaterials().stream()
+                        .filter(m -> classroomService.getClassroomsByStudentId(studentId).stream()
+                                .anyMatch(c -> c.getId().equals(m.getClassroomId())))
+                        .count());
+
+        return dto;
     }
 
     private void mapFromDto(Student student, StudentDto dto) {

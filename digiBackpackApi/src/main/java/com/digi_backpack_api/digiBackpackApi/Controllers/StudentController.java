@@ -5,6 +5,8 @@ import com.digi_backpack_api.digiBackpackApi.Services.StudentService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.digi_backpack_api.digiBackpackApi.Dtos.StudentDashboardDto;
+
 import java.util.List;
 
 @RestController
@@ -15,6 +17,7 @@ public class StudentController {
 
     public StudentController(StudentService studentService) {
         this.studentService = studentService;
+
     }
 
     @GetMapping
@@ -53,4 +56,8 @@ public class StudentController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/{id}/dashboard")
+    public ResponseEntity<StudentDashboardDto> getStudentDashboard(@PathVariable Long id) {
+        return ResponseEntity.ok(studentService.getDashboardForStudent(id));
+    }
 }
